@@ -10,32 +10,27 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# Extract text from PDFs
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
-            text += page.extract_text() or ""  # Ensure None is handled safely
+            text += page.extract_text() or ""  y
     return text
 
-# Split text into smaller chunks
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
     chunks = text_splitter.split_text(text)
     return chunks
 
-# Store text embeddings using FAISS
 def get_vector_store(text_chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)  # Fixed function call
-    st.session_state["vector_store"] = vector_store  # Store in session state
+    vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)  
+    st.session_state["vector_store"] = vector_store  
 
-# Generate conversational chain
 def get_conversational_chain():
     prompt_template = """
     Answer the question as detailed as possible from the provided context. If the answer is not in
@@ -50,7 +45,6 @@ def get_conversational_chain():
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
     return chain
 
-# Handle user input and perform similarity search
 def user_input(user_question):
     if "vector_store" not in st.session_state:
         st.warning("Please upload and process a PDF first.")
@@ -69,8 +63,8 @@ def user_input(user_question):
 
 # Streamlit UI
 def main():
-    st.set_page_config(page_title="Read Multiple PDF")  # Fixed config
-    st.header("AI Multiple PDF Reader")
+    st.set_page_config(page_title="Read Multiple PDF")  
+    st.header("AI PDF Reader")
 
     user_question = st.text_input("Ask anything from the uploaded PDF files")
     if user_question:
